@@ -1,12 +1,13 @@
 import {
   ArrowRightOutlined,
-  BellOutlined,
   StarFilled,
 } from '@ant-design/icons';
 import { Carousel } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import "./App.css";
+import Header from './pages/Header'
+import { useNavigate } from 'react-router-dom';
 
 const contentStyle = {
   height: '60vh',
@@ -17,48 +18,21 @@ const contentStyle = {
 };
 
 const App = () => {
-  let listRecentMov = [];
-  let listRecentTV = [];
+  let count = 0;
   const [listUpdate, setListUpdate] = useState()
+  const nav = useNavigate()
 
   useEffect(() => {
     (async () => {
       let res = await axios.get(`https://ophim1.com/danh-sach/phim-moi-cap-nhat?page=$1`)
+      res.data['items']?.sort((a, b) => b.tmdb.vote_average - a.tmdb.vote_average)
       setListUpdate([...res.data['items']])
     })()
   }, [])
 
-  listUpdate?.map((e, i) => {
-    if (e.tmdb.type == 'movie' && listRecentMov.length < 4) {
-      listRecentMov.push(e)
-    } else if (e.tmdb.type == 'tv' && listRecentTV.length < 4) {
-      listRecentTV.push(e)
-    }
-  })
-
-  listUpdate?.sort((a, b) => b.tmdb.vote_average - a.tmdb.vote_average)
-
   return (
     <>
-      <nav className='bg-black flex justify-center items-center gap-x-6' style={{ height: '15vh' }}>
-        <div className='flex text-white gap-4'>
-          <a href="">Home</a>
-          <a href="">Genre</a>
-          <a href="">Country</a>
-        </div>
-        <div>
-          <input className="rounded-3xl" type="text" placeholder="Search movies......." />
-        </div>
-        <div className='flex text-white gap-4'>
-          <a href="">Movies</a>
-          <a href="">Series</a>
-          <a href="">Animation</a>
-        </div>
-        <div className='flex text-white gap-4'>
-          <a href="">Login/Singup</a>
-          <BellOutlined />
-        </div>
-      </nav>
+      <Header />
       <Carousel autoplay>
         <div>
           <h3 style={contentStyle}>1</h3>
@@ -123,7 +97,9 @@ const App = () => {
             {listUpdate?.map((e, i) => {
               if (i < 3) {
                 return (
-                  <div>
+                  <div key={e._id} onClick={() => {
+                    nav(`/player/${e.tmdb.type}/${e.slug}`)
+                  }}>
                     <img className='w-80 h-72 object-cover' src={`https://img.ophim.live/uploads/movies/${e.thumb_url}`} alt="" />
                     <div className='flex justify-between items-center'>
                       <h2 className='w-36 font-semibold truncate'>{e.name}</h2>
@@ -151,15 +127,20 @@ const App = () => {
             <p className='text-gray-400 cursor-pointer'>View all <ArrowRightOutlined /></p>
           </div>
           <div className='flex justify-between'>
-            {listRecentMov?.map(e => {
-              return (
-                <div key={e._id} className='w-64 flex flex-col'>
-                  <img className='h-80 object-cover' src={`https://img.ophim.live/uploads/movies/${e.thumb_url}`} alt="" />
-                  <h2 className='font-semibold text-center'>{e.name}</h2>
-                </div>
-              )
-            }
-            )}
+            {listUpdate?.map((e, i) => {
+              if (e.tmdb.type == 'movie' && count < 4) {
+                count++
+                return (
+                  <div key={e._id} className='w-64 flex flex-col' onClick={() => {
+                    nav(`/player/${e.tmdb.type}/${e.slug}`)
+                  }}>
+                    <img className='h-80 object-cover' src={`https://img.ophim.live/uploads/movies/${e.thumb_url}`} alt="" />
+                    <h2 className='font-semibold text-center'>{e.name}</h2>
+                  </div>
+                )
+              }
+              if (count == 4 && i == listUpdate.length - 1) count = 0
+            })}
           </div>
         </div>
         {/* /Movie */}
@@ -171,15 +152,20 @@ const App = () => {
             <p className='text-gray-400 cursor-pointer'>View all <ArrowRightOutlined /></p>
           </div>
           <div className='flex justify-between'>
-            {listRecentTV?.map(e => {
-              return (
-                <div key={e._id} className='w-64 flex flex-col'>
-                  <img className='h-80 object-cover' src={`https://img.ophim.live/uploads/movies/${e.thumb_url}`} alt="" />
-                  <h2 className='font-semibold text-center'>{e.name}</h2>
-                </div>
-              )
-            }
-            )}
+            {listUpdate?.map((e, i) => {
+              if (e.tmdb.type == 'tv' && count < 4) {
+                count++
+                return (
+                  <div key={e._id} className='w-64 flex flex-col' onClick={() => {
+                    nav(`/player/${e.tmdb.type}/${e.slug}`)
+                  }}>
+                    <img className='h-80 object-cover' src={`https://img.ophim.live/uploads/movies/${e.thumb_url}`} alt="" />
+                    <h2 className='font-semibold text-center'>{e.name}</h2>
+                  </div>
+                )
+              }
+              if (count == 4 && i == listUpdate.length - 1) count = 0
+            })}
           </div>
         </div>
         {/* /Series */}
