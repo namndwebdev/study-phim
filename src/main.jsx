@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     element: <App />,
   },
   {
-    path: '/player/:type/:slug',
+    path: '/player/:type/:slug/:esp',
     element: <Player />
   }
 ]);

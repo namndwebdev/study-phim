@@ -5,7 +5,7 @@ function Header() {
     return (
         <nav className='bg-black flex justify-center items-center gap-x-6' style={{ height: '15vh' }}>
             <div className='flex text-white gap-4'>
-                <a href="">Home</a>
+                <a href="/">Home</a>
                 <a href="">Genre</a>
                 <a href="">Country</a>
             </div>
