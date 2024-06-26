@@ -1,4 +1,4 @@
-import { CalendarOutlined, ClockCircleOutlined, DownOutlined, PlayCircleOutlined, StarFilled } from '@ant-design/icons';
+import { CalendarOutlined, ClockCircleOutlined, DownOutlined, PlayCircleOutlined, StarFilled, UpOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import ReactHlsPlayer from 'react-hls-player';
@@ -9,16 +9,15 @@ function Player() {
     const nav = useNavigate()
     const { slug, type, esp } = useParams();
     let [video, setVideo] = useState()
+    const [toggleEsp, setToggleEsp] = useState(false)
+
     useEffect(() => {
         (async () => {
             let res = await axios.get(`https://ophim1.com/phim/${slug}`)
             setVideo(res.data)
+            window.scrollTo(0, 0)
         })()
     }, [])
-
-    console.log(video?.episodes)
-
-    window.scrollTo(0, 0)
 
     return (
         <>
@@ -61,33 +60,38 @@ function Player() {
             </div>
             {type == 'tv' ? (
                 <div className='text-white mt-24 px-52'>
-                    <p className='text-2xl mb-8'>All Episodes <DownOutlined /></p>
-                    <div className='flex gap-x-8'>
-                        <div className='flex flex-col w-1/2 gap-y-6'>
-                            {video?.episodes[0]?.server_data.map((e, i) => {
-                                if (i < Math.ceil(video?.episodes[0]?.server_data?.length / 2)) {
-                                    return (
-                                        <div onClick={() => {
-                                            nav(`../${e.name}`, { relative: 'path' })
-                                        }}
-                                            key={e.name} className={`text-lg cursor-pointer ${esp == e.name ? 'bg-red-600 text-white' : 'bg-white text-black'} p-4 rounded-md`}><PlayCircleOutlined /> Episode {e.name}</div>
-                                    )
-                                }
-                            })}
+                    <p className='text-2xl mb-8' onClick={() => setToggleEsp(!toggleEsp)}>All Episodes {toggleEsp ? <UpOutlined /> : <DownOutlined />}</p>
+                    {toggleEsp ? (
+                        <div className='flex gap-x-8'>
+                            <div className='flex flex-col w-1/2 gap-y-6'>
+                                {video?.episodes[0]?.server_data.map((e, i) => {
+                                    if (i < Math.ceil(video?.episodes[0]?.server_data?.length / 2)) {
+                                        return (
+                                            <div onClick={() => {
+                                                nav(`../${e.name}`, { relative: 'path' })
+                                                window.scrollTo(0, 0)
+                                            }}
+                                                key={e.name} className={`text-lg cursor-pointer ${esp == e.name ? 'bg-red-600 text-white' : 'bg-white text-black'} p-4 rounded-md`}><PlayCircleOutlined /> Episode {e.name}</div>
+                                        )
+                                    }
+                                })}
+                            </div>
+                            <div className='flex flex-col w-1/2 gap-y-6'>
+                                {video?.episodes[0]?.server_data.map((e, i) => {
+                                    if (i > Math.floor(video?.episodes[0]?.server_data?.length / 2)) {
+                                        return (
+                                            <div onClick={() => {
+                                                nav(`../${e.name}`, { relative: 'path' })
+                                                window.scrollTo(0, 0)
+                                            }}
+                                                key={e.name} className={`text-lg cursor-pointer ${esp == e.name ? 'bg-red-600 text-white' : 'bg-white text-black'} p-4 rounded-md`}><PlayCircleOutlined /> Episode {e.name}</div>
+                                        )
+                                    }
+                                })}
+                            </div>
                         </div>
-                        <div className='flex flex-col w-1/2 gap-y-6'>
-                            {video?.episodes[0]?.server_data.map((e, i) => {
-                                if (i > Math.floor(video?.episodes[0]?.server_data?.length / 2)) {
-                                    return (
-                                        <div onClick={() => {
-                                            nav(`../${e.name}`, { relative: 'path' })
-                                        }}
-                                            key={e.name} className={`text-lg cursor-pointer ${esp == e.name ? 'bg-red-600 text-white' : 'bg-white text-black'} p-4 rounded-md`}><PlayCircleOutlined /> Episode {e.name}</div>
-                                    )
-                                }
-                            })}
-                        </div>
-                    </div>
+                    ) : ''}
+
                 </div>
             ) : ''}
         </>
